@@ -109,6 +109,10 @@ async def pub_(bot, message):
     temp.IS_FRWD_CHAT.append(i.TO)
     temp.lock[user] = locked = True
     dup_files = []
+    if user_have_db and datas['skip_duplicate']:
+        old_files = await user_db.get_all_files()
+        async for old_file in old_files:
+            dup_files.append(old_file["file_id"])
     if locked:
         try:
           MSG = []
@@ -117,7 +121,7 @@ async def pub_(bot, message):
           async for message in iter_messages(client, chat_id=sts.get("FROM"), limit=sts.get("limit"), offset=sts.get("skip"), filters=filter, max_size=max_size):
                 if await is_cancelled(client, user, m, sts):
                    if user_have_db:
-                      await user_db.drop_all()
+                      await user_db.close()
                       await user_db.close()
                    return
                 if pling %20 == 0: 
@@ -169,7 +173,7 @@ async def pub_(bot, message):
             await msg_edit(m, f'<b>ERROR:</b>\n<code>{e}</code>', wait=True)
             print(e)
             if user_have_db:
-                await user_db.drop_all()
+                await user_db.close()
                 await user_db.close()
             if sts.TO in temp.IS_FRWD_CHAT:
                 temp.IS_FRWD_CHAT.remove(sts.TO)
@@ -179,7 +183,7 @@ async def pub_(bot, message):
         await send(client, user, "<b>🎉 ғᴏʀᴡᴀᴅɪɴɢ ᴄᴏᴍᴘʟᴇᴛᴇᴅ</b>")
         await edit(user, m, 'ᴄᴏᴍᴘʟᴇᴛᴇᴅ', "completed", sts) 
         if user_have_db:
-            await user_db.drop_all()
+            await user_db.close()
             await user_db.close()
         await stop(client, user)
 
@@ -583,7 +587,7 @@ async def restart_pending_forwads(bot, user):
           async for message in iter_messages(client, chat_id=sts.get("FROM"), limit=sts.get("limit"), offset=skiping, filters=filter, max_size=max_size):
                 if await is_cancelled(client, user, m, sts):
                     if user_have_db:
-                       await user_db.drop_all()
+                       await user_db.close()
                        await user_db.close()
                        return
                     return
@@ -635,7 +639,7 @@ async def restart_pending_forwads(bot, user):
         except Exception as e:
             await msg_edit(m, f'<b>ERROR:</b>\n<code>{e}</code>', wait=True)
             if user_have_db:
-                await user_db.drop_all()
+                await user_db.close()
                 await user_db.close()
             if sts.TO in temp.IS_FRWD_CHAT:
                 temp.IS_FRWD_CHAT.remove(sts.TO)
@@ -644,7 +648,7 @@ async def restart_pending_forwads(bot, user):
             temp.IS_FRWD_CHAT.remove(sts.TO)
         await send(client, user, "<b>🎉 ғᴏʀᴡᴀᴅɪɴɢ ᴄᴏᴍᴘʟᴇᴛᴇᴅ</b>")
         if user_have_db:
-            await user_db.drop_all()
+            await user_db.close()
             await user_db.close()
         await edit(user, m, 'ᴄᴏᴍᴘʟᴇᴛᴇᴅ', "completed", sts) 
         await stop(client, user)
