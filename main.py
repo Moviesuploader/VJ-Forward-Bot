@@ -30,8 +30,8 @@ async def main():
         plugins={"root": "plugins"},
     )
 
-    await bot.start()
     try:
+        await bot.start()
         me = await bot.get_me()
         logger.info("Telegram bot started as @%s (id=%s)", me.username, me.id)
         try:
