@@ -100,6 +100,11 @@ class CLIENT:
         await client.disconnect()
         await phone_number_msg.reply('`PHONE_NUMBER` **is invalid.**')
         return
+     except Exception as e:
+        if client.is_connected:
+           await client.disconnect()
+        await bot.send_message(user_id, f"<b>Could not request Telegram login code:</b> `{e}`")
+        return
      if phone_code_msg.text=='/cancel':
         await client.disconnect()
         return await phone_code_msg.reply('<b>process cancelled !</b>')
