@@ -2,7 +2,9 @@ import asyncio
 import unittest
 from types import SimpleNamespace
 
+from pyrogram import StopPropagation
 from pyrogram.enums import ListenerTypes
+from pyrogram.handlers import MessageHandler
 from pyrogram.types import Identifier
 
 from client import VJ
@@ -67,6 +69,46 @@ class AskHandlerTests(unittest.IsolatedAsyncioTestCase):
             await bot.ask(chat_id=12345, text="Send a reply", timeout=1)
 
         self.assertEqual(bot.listeners[ListenerTypes.MESSAGE], [])
+
+    async def test_builtin_message_handler_dispatches_without_recursion(self):
+        bot = FakeBot()
+        calls = []
+
+        async def original_callback(client, message):
+            calls.append(message.text)
+
+        handler = MessageHandler(original_callback)
+        message = SimpleNamespace(
+            chat=SimpleNamespace(id=12345, username=None),
+            from_user=SimpleNamespace(id=98765, username=None),
+            id=777,
+            text="normal update",
+        )
+
+        await handler.callback(bot, message)
+        self.assertEqual(calls, ["normal update"])
+
+    async def test_builtin_message_handler_resolves_ask_listener(self):
+        bot = FakeBot()
+        future, listener = bot._register_listener(
+            chat_id=12345,
+            user_id=98765,
+            listener_type=ListenerTypes.MESSAGE,
+        )
+        handler = MessageHandler(lambda *_: None)
+        message = SimpleNamespace(
+            chat=SimpleNamespace(id=12345, username=None),
+            from_user=SimpleNamespace(id=98765, username=None),
+            id=778,
+            text="answer",
+        )
+
+        with self.assertRaises(StopPropagation):
+            await handler.callback(bot, message)
+
+        self.assertEqual(future.result(), message)
+        self.assertEqual(bot.listeners[ListenerTypes.MESSAGE], [])
+        bot.remove_listener(listener)
 
     async def test_listener_matching_uses_pyrofork_listener_enum(self):
         bot = FakeBot()
