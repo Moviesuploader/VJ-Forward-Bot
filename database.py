@@ -1,10 +1,10 @@
-import motor.motor_asyncio
+from pymongo import AsyncMongoClient
 from config import Config
 
 
 class Db:
     def __init__(self, uri, database_name):
-        self._client = motor.motor_asyncio.AsyncIOMotorClient(
+        self._client = AsyncMongoClient(
             uri,
             serverSelectionTimeoutMS=15000,
             connectTimeoutMS=15000,
@@ -21,8 +21,8 @@ class Db:
         """Fail fast when MongoDB is unreachable or credentials are invalid."""
         await self._client.admin.command("ping")
 
-    def close(self):
-        self._client.close()
+    async def close(self):
+        await self._client.close()
 
     def new_user(self, id, name):
         return {"id": id, "name": name, "ban_status": {"is_banned": False, "ban_reason": ""}}
