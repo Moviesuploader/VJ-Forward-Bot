@@ -2,8 +2,7 @@
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
 # Ask Doubt on telegram @KingVJ01
 
-import asyncio
-import motor.motor_asyncio
+from pymongo import AsyncMongoClient
 
 # Don't Remove Credit Tg - @VJ_Botz
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
@@ -19,13 +18,19 @@ class MongoDB:
         self.files = None
 
     async def connect(self):
-        self.client = motor.motor_asyncio.AsyncIOMotorClient(self.uri)
+        self.client = AsyncMongoClient(
+            self.uri,
+            serverSelectionTimeoutMS=15000,
+            connectTimeoutMS=15000,
+            appname="VJ-Forward-Bot-user-db",
+        )
         self.db = self.client[self.db_name]
         self.files = self.db[self.collection]
+        await self.client.admin.command("ping")
 
     async def close(self):
         if self.client:
-            self.client.close()
+            await self.client.close()
 
     async def add_file(self, file_id):
         file = {"file_id": file_id}
@@ -52,8 +57,10 @@ async def connect_user_db(user_id, uri, chat):
     try:
         await db.connect()
     except Exception as e:
-        print(e)
-        return False, db
+        print(f"User database connection failed: {e}")
+        if db.client:
+            await db.close()
+        return False, None
     return True, db
     
 # Don't Remove Credit Tg - @VJ_Botz

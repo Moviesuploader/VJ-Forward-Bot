@@ -1,12 +1,10 @@
-FROM python:3.10.8-slim-buster
+FROM python:3.12-slim
 
-RUN apt update && apt upgrade -y
-RUN apt install git -y
-COPY requirements.txt /requirements.txt
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
 
-RUN cd /
-RUN pip3 install -U pip && pip3 install -U -r requirements.txt
-RUN mkdir /VJ-Forward-Bot
-WORKDIR /VJ-Forward-Bot
-COPY . /VJ-Forward-Bot
-CMD gunicorn app:app & python3 main.py
+WORKDIR /app
+COPY requirements.txt ./requirements.txt
+RUN python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+
+COPY . .
+CMD ["python", "-u", "main.py"]

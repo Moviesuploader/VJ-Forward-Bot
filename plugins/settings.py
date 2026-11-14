@@ -66,16 +66,18 @@ async def settings_query(bot, query):
      await query.message.delete()
      bot = await CLIENT.add_bot(bot, query)
      if bot != True: return
-     await query.message.reply_text(
-        "<b>bot token successfully added to db</b>",
+     await bot.send_message(
+        user_id,
+        "<b>Bot token successfully added to database</b>",
         reply_markup=InlineKeyboardMarkup(buttons))
 
   elif type=="adduserbot":
      await query.message.delete()
      user = await CLIENT.add_session(bot, query)
      if user != True: return
-     await query.message.reply_text(
-        "<b>session successfully added to db</b>",
+     await bot.send_message(
+        user_id,
+        "<b>User session successfully added to database</b>",
         reply_markup=InlineKeyboardMarkup(buttons))
 
   elif type=="channels":
@@ -337,22 +339,20 @@ async def settings_query(bot, query):
        f'<b><u>Max SIZE LIMIT</b></u><b>\n\nyou can set file Maximum size limit to forward\n\nfiles with less than `{size} MB` will forward</b>',
        reply_markup=maxsize_button(size))
 
-  elif type.startswith("update_size"):
-    size = int(query.data.split('-')[1])
-    if 0 < size > 4000:
+  elif type.startswith("update_size:"):
+    size = int(type.split(":", 1)[1])
+    if size < 0 or size > 4000:
       return await query.answer("size limit exceeded", show_alert=True)
     await update_configs(user_id, 'min_size', size)
-    i, limit = size_limit((await get_configs(user_id))['size_limit'])
     await query.message.edit_text(
        f'<b><u>SIZE LIMIT</b></u><b>\n\nyou can set file Minimum size limit to forward\n\nfiles with greater than `{size} MB` will forward</b>',
        reply_markup=size_button(size))
      
-  elif type.startswith("maxupdate_size"):
-    size = int(query.data.split('-')[1])
-    if 0 < size > 4000:
+  elif type.startswith("maxupdate_size:"):
+    size = int(type.split(":", 1)[1])
+    if size < 0 or size > 4000:
       return await query.answer("size limit exceeded", show_alert=True)
     await update_configs(user_id, 'max_size', size)
-    i, limit = size_limit((await get_configs(user_id))['size_limit'])
     await query.message.edit_text(
        f'<b><u>Max SIZE LIMIT</b></u><b>\n\nyou can set file Maximum size limit to forward\n\nfiles with less than `{size} MB` will forward</b>',
        reply_markup=maxsize_button(size))
@@ -554,29 +554,29 @@ def maxsize_button(size):
                     callback_data=f'noth')
        ],[
        InlineKeyboardButton('+1',
-                    callback_data=f'settings#maxupdate_size-{size + 1}'),
+                    callback_data=f'settings#maxupdate_size:{size + 1}'),
        InlineKeyboardButton('-1',
-                    callback_data=f'settings#maxupdate_size_-{size - 1}')
+                    callback_data=f'settings#maxupdate_size:{max(0, size - 1)}')
        ],[
        InlineKeyboardButton('+5',
-                    callback_data=f'settings#maxupdate_size-{size + 5}'),
+                    callback_data=f'settings#maxupdate_size:{size + 5}'),
        InlineKeyboardButton('-5',
-                    callback_data=f'settings#maxupdate_size_-{size - 5}')
+                    callback_data=f'settings#maxupdate_size:{max(0, size - 5)}')
        ],[
        InlineKeyboardButton('+10',
-                    callback_data=f'settings#maxupdate_size-{size + 10}'),
+                    callback_data=f'settings#maxupdate_size:{size + 10}'),
        InlineKeyboardButton('-10',
-                    callback_data=f'settings#maxupdate_size_-{size - 10}')
+                    callback_data=f'settings#maxupdate_size:{max(0, size - 10)}')
        ],[
        InlineKeyboardButton('+50',
-                    callback_data=f'settings#maxupdate_size-{size + 50}'),
+                    callback_data=f'settings#maxupdate_size:{size + 50}'),
        InlineKeyboardButton('-50',
-                    callback_data=f'settings#maxupdate_size_-{size - 50}')
+                    callback_data=f'settings#maxupdate_size:{max(0, size - 50)}')
        ],[
        InlineKeyboardButton('+100',
-                    callback_data=f'settings#maxupdate_size-{size + 100}'),
+                    callback_data=f'settings#maxupdate_size:{size + 100}'),
        InlineKeyboardButton('-100',
-                    callback_data=f'settings#maxupdate_size_-{size - 100}')
+                    callback_data=f'settings#maxupdate_size:{max(0, size - 100)}')
        ],[
        InlineKeyboardButton('back',
                     callback_data="settings#extra")
@@ -593,29 +593,29 @@ def size_button(size):
                     callback_data=f'noth')
        ],[
        InlineKeyboardButton('+1',
-                    callback_data=f'settings#update_size-{size + 1}'),
+                    callback_data=f'settings#update_size:{size + 1}'),
        InlineKeyboardButton('-1',
-                    callback_data=f'settings#update_size_-{size - 1}')
+                    callback_data=f'settings#update_size:{max(0, size - 1)}')
        ],[
        InlineKeyboardButton('+5',
-                    callback_data=f'settings#update_size-{size + 5}'),
+                    callback_data=f'settings#update_size:{size + 5}'),
        InlineKeyboardButton('-5',
-                    callback_data=f'settings#update_size_-{size - 5}')
+                    callback_data=f'settings#update_size:{max(0, size - 5)}')
        ],[
        InlineKeyboardButton('+10',
-                    callback_data=f'settings#update_size-{size + 10}'),
+                    callback_data=f'settings#update_size:{size + 10}'),
        InlineKeyboardButton('-10',
-                    callback_data=f'settings#update_size_-{size - 10}')
+                    callback_data=f'settings#update_size:{max(0, size - 10)}')
        ],[
        InlineKeyboardButton('+50',
-                    callback_data=f'settings#update_size-{size + 50}'),
+                    callback_data=f'settings#update_size:{size + 50}'),
        InlineKeyboardButton('-50',
-                    callback_data=f'settings#update_size_-{size - 50}')
+                    callback_data=f'settings#update_size:{max(0, size - 50)}')
        ],[
        InlineKeyboardButton('+100',
-                    callback_data=f'settings#update_size-{size + 100}'),
+                    callback_data=f'settings#update_size:{size + 100}'),
        InlineKeyboardButton('-100',
-                    callback_data=f'settings#update_size_-{size - 100}')
+                    callback_data=f'settings#update_size:{max(0, size - 100)}')
        ],[
        InlineKeyboardButton('back',
                     callback_data="settings#extra")
@@ -675,7 +675,6 @@ async def next_filters_buttons(user_id):
   filter = await get_configs(user_id)
   filters = filter['filters']
   buttons = [[
-       ],[
        InlineKeyboardButton('🎤 Voices',
                     callback_data=f'settings_#updatefilter-voice-{filters["voice"]}'),
        InlineKeyboardButton('✅' if filters['voice'] else '❌',

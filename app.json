@@ -1,0 +1,44 @@
+{
+  "name": "VJ Forward Bot",
+  "description": "Telegram channel forwarding bot with filters, custom captions, and restart recovery.",
+  "repository": "https://github.com/Moviesuploader/VJ-Forward-Bot",
+  "keywords": [
+    "telegram",
+    "forward-bot",
+    "pyrofork",
+    "mongodb"
+  ],
+  "stack": "heroku-24",
+  "env": {
+    "API_ID": {
+      "description": "Telegram API ID from https://my.telegram.org",
+      "required": true
+    },
+    "API_HASH": {
+      "description": "Telegram API hash from https://my.telegram.org",
+      "required": true
+    },
+    "BOT_TOKEN": {
+      "description": "Main Telegram bot token from @BotFather",
+      "required": true
+    },
+    "BOT_OWNER": {
+      "description": "Your numeric Telegram user ID",
+      "required": true
+    },
+    "DATABASE_URI": {
+      "description": "MongoDB Atlas connection URI. Do not commit this value.",
+      "required": true
+    },
+    "DATABASE_NAME": {
+      "description": "MongoDB database name",
+      "value": "vj-forward-bot"
+    }
+  },
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  }
+}
