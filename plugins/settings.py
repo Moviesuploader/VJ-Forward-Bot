@@ -64,8 +64,8 @@ async def settings_query(bot, query):
 
   elif type=="addbot":
      await query.message.delete()
-     bot = await CLIENT.add_bot(bot, query)
-     if bot != True: return
+     added = await CLIENT.add_bot(bot, query)
+     if added is not True: return
      await bot.send_message(
         user_id,
         "<b>Bot token successfully added to database</b>",
@@ -101,7 +101,7 @@ async def settings_query(bot, query):
         return await chat_ids.reply_text(
                   "<b>process canceled</b>",
                   reply_markup=InlineKeyboardMarkup(buttons))
-     elif not chat_ids.forward_date:
+     elif not chat_ids.forward_date or not chat_ids.forward_from_chat:
         return await chat_ids.reply("**This is not a forward message**")
      else:
         chat_id = chat_ids.forward_from_chat.id
@@ -109,7 +109,8 @@ async def settings_query(bot, query):
         username = chat_ids.forward_from_chat.username
         username = "@" + username if username else "private"
      chat = await db.add_channel(user_id, chat_id, title, username)
-     await query.message.reply_text(
+     await bot.send_message(
+        user_id,
         "<b>Successfully updated</b>" if chat else "<b>This channel already added</b>",
         reply_markup=InlineKeyboardMarkup(buttons))
 
@@ -280,7 +281,7 @@ async def settings_query(bot, query):
         return await uri.reply_text(
                   "<b>process canceled !</b>",
                   reply_markup=InlineKeyboardMarkup(buttons))
-     if not uri.text.startswith("mongodb+srv://") and not uri.text.endswith("majority"):
+     if not uri.text.startswith(("mongodb://", "mongodb+srv://")):
         return await uri.reply("<b>Invalid Mongodb Url</b>",
                    reply_markup=InlineKeyboardMarkup(buttons))
      connect, udb = await connect_user_db(user_id, uri.text, "test")

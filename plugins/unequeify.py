@@ -82,7 +82,7 @@ async def unequify(client, message):
    if target.text and target.text.startswith("/"):
       return await message.reply("**process cancelled !**")
    elif target.text:
-      regex = re.compile("(https://)?(t\.me/|telegram\.me/|telegram\.dog/)(c/)?(\d+|[a-zA-Z_0-9]+)/(\d+)$")
+      regex = re.compile(r"(https://)?(t\.me/|telegram\.me/|telegram\.dog/)(c/)?(\d+|[a-zA-Z_0-9]+)/(\d+)$")
       match = regex.match(target.text.replace("?single", ""))
       if not match:
          return await message.reply('**Invalid link**')
@@ -90,7 +90,7 @@ async def unequify(client, message):
       last_msg_id = int(match.group(5))
       if chat_id.isnumeric():
          chat_id  = int(("-100" + chat_id))
-   elif target.forward_from_chat.type in [enums.ChatType.CHANNEL, 'supergroup']:
+   elif target.forward_from_chat and target.forward_from_chat.type in [enums.ChatType.CHANNEL, 'supergroup']:
         last_msg_id = target.forward_from_message_id
         chat_id = target.forward_from_chat.username or target.forward_from_chat.id
    else:
