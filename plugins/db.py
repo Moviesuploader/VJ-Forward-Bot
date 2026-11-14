@@ -3,7 +3,7 @@
 # Ask Doubt on telegram @KingVJ01
 
 import asyncio
-import motor.motor_asyncio
+from pymongo import AsyncMongoClient
 
 # Don't Remove Credit Tg - @VJ_Botz
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
@@ -19,7 +19,7 @@ class MongoDB:
         self.files = None
 
     async def connect(self):
-        self.client = motor.motor_asyncio.AsyncIOMotorClient(self.uri)
+        self.client = AsyncMongoClient(self.uri)
         self.db = self.client[self.db_name]
         self.files = self.db[self.collection]
 
