@@ -666,8 +666,8 @@ async def store_vars(user_id):
 # Ask Doubt on telegram @KingVJ01
 
 async def restart_forwards(client):
-    users = await db.get_all_frwd()
-    count = await db.forwad_count()
+    # PyMongo Async find() returns an async cursor directly; it is not awaitable.
+    users = db.get_all_frwd()
     tasks = []
     async for user in users:
         tasks.append(restart_pending_forwads(client, user))
