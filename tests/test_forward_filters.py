@@ -35,8 +35,8 @@ class ForwardFilterTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(await keyword_filter(None, "Movie.mkv"))
 
     async def test_extension_filter_skips_matching_extensions(self):
-        self.assertTrue(await extension_filter(r"\.mkv$|\.mp4$", "Movie.mkv"))
-        self.assertFalse(await extension_filter(r"\.mkv$", "Movie.avi"))
+        self.assertTrue(await extension_filter("mkv|mp4", "Movie.mkv"))
+        self.assertFalse(await extension_filter("mkv", "Movie.avi"))
         self.assertFalse(await extension_filter(None, "Movie.mkv"))
 
     def test_time_formatter(self):
