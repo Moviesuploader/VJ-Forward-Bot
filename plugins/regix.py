@@ -346,28 +346,30 @@ def get_size(size):
 # Ask Doubt on telegram @KingVJ01
 
 async def keyword_filter(keywords, file_name):
-    if keywords is None:
+    """Return True when no configured filename keyword matches."""
+    if not keywords:
         return False
-    if re.search(keywords, file_name):
-        return False
-    else:
-        return True
+    terms = keywords.split("|") if isinstance(keywords, str) else keywords
+    name = (file_name or "").casefold()
+    return not any(str(term).strip().casefold() in name for term in terms if str(term).strip())
 
-# Don't Remove Credit Tg - @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
-# Ask Doubt on telegram @KingVJ01
 
 async def extension_filter(extensions, file_name):
-    if extensions is None:
+    """Return True when the filename ends with one of the skipped extensions."""
+    if not extensions:
         return False
-    if not re.search(extensions, file_name):
-        return False
-    else:
-        return True
+    terms = extensions.split("|") if isinstance(extensions, str) else extensions
+    name = (file_name or "").casefold()
+    for term in terms:
+        extension = str(term).strip().casefold()
+        if not extension:
+            continue
+        if not extension.startswith("."):
+            extension = "." + extension
+        if name.endswith(extension):
+            return True
+    return False
 
-# Don't Remove Credit Tg - @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
-# Ask Doubt on telegram @KingVJ01
 
 async def size_filter(max_size, min_size, file_size):
     """Return True when a document is outside the configured MB limits."""
