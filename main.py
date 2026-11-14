@@ -2,13 +2,12 @@
 import asyncio
 import logging
 
-# PyroPatch supplies the conversation/listener helpers used by bot.ask().
-from pyropatch import pyropatch
-pyropatch()
+# Pyromod supplies the Client.ask() conversation helper used by the settings flow.
+from pyromod import Client as VJ
+from pyrogram import idle
 
 from config import Config
 from database import db
-from pyrogram import Client as VJ, idle
 from plugins.regix import restart_forwards
 
 logging.basicConfig(
