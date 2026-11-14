@@ -57,8 +57,10 @@ async def connect_user_db(user_id, uri, chat):
     try:
         await db.connect()
     except Exception as e:
-        print(e)
-        return False, db
+        print(f"User database connection failed: {e}")
+        if db.client:
+            await db.close()
+        return False, None
     return True, db
     
 # Don't Remove Credit Tg - @VJ_Botz
