@@ -675,7 +675,6 @@ async def next_filters_buttons(user_id):
   filter = await get_configs(user_id)
   filters = filter['filters']
   buttons = [[
-       ],[
        InlineKeyboardButton('🎤 Voices',
                     callback_data=f'settings_#updatefilter-voice-{filters["voice"]}'),
        InlineKeyboardButton('✅' if filters['voice'] else '❌',
