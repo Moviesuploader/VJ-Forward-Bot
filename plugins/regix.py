@@ -279,8 +279,7 @@ async def edit(user, msg, title, status, sts):
 async def is_cancelled(client, user, msg, sts):
    if temp.CANCEL.get(user)==True:
       if sts.TO in temp.IS_FRWD_CHAT:
-         if sts.TO in temp.IS_FRWD_CHAT:
-             temp.IS_FRWD_CHAT.remove(sts.TO)
+         temp.IS_FRWD_CHAT.remove(sts.TO)
       await edit(user, msg, 'ᴄᴀɴᴄᴇʟʟᴇᴅ', "cancelled", sts)
       await send(client, user, "<b>❌ ғᴏʀᴡᴀᴅɪɴɢ ᴄᴀɴᴄᴇʟʟᴇᴅ</b>")
       await stop(client, user)
@@ -443,12 +442,12 @@ async def status_msg(bot, msg):
     uptime = await get_bot_uptime(start_time)
     eta = await complete_time(remaining)
     details = (
-        f"Progress: {percentage}%\\n"
-        f"Fetched: {fetched}/{limit}\\n"
-        f"Forwarded: {forwarded}\\n"
-        f"Remaining: {remaining}\\n"
-        f"Status: {status}\\n"
-        f"ETA: {eta or '0s'}\\n"
+        f"Progress: {percentage}%\n"
+        f"Fetched: {fetched}/{limit}\n"
+        f"Forwarded: {forwarded}\n"
+        f"Remaining: {remaining}\n"
+        f"Status: {status}\n"
+        f"ETA: {eta or '0s'}\n"
         f"Uptime: {uptime}"
     )
     await msg.answer(details, show_alert=True)
@@ -676,7 +675,7 @@ async def restart_forwards(client):
     results = await asyncio.gather(*tasks, return_exceptions=True)
     for result in results:
         if isinstance(result, Exception):
-            logger.exception("A pending forwarding task failed during restart", exc_info=result)
+            logger.error("A pending forwarding task failed during restart: %r", result)
     print('Done')
 
 # Don't Remove Credit Tg - @VJ_Botz
