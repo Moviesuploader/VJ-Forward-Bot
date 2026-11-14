@@ -66,16 +66,18 @@ async def settings_query(bot, query):
      await query.message.delete()
      bot = await CLIENT.add_bot(bot, query)
      if bot != True: return
-     await query.message.reply_text(
-        "<b>bot token successfully added to db</b>",
+     await bot.send_message(
+        user_id,
+        "<b>Bot token successfully added to database</b>",
         reply_markup=InlineKeyboardMarkup(buttons))
 
   elif type=="adduserbot":
      await query.message.delete()
      user = await CLIENT.add_session(bot, query)
      if user != True: return
-     await query.message.reply_text(
-        "<b>session successfully added to db</b>",
+     await bot.send_message(
+        user_id,
+        "<b>User session successfully added to database</b>",
         reply_markup=InlineKeyboardMarkup(buttons))
 
   elif type=="channels":
