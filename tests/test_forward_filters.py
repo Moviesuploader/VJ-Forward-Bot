@@ -7,10 +7,14 @@ os.environ.setdefault("BOT_TOKEN", "123456789:abcdefghijklmnopqrstuvwxyzABCDEFG"
 os.environ.setdefault("BOT_OWNER", "123456")
 os.environ.setdefault("DATABASE_URI", "mongodb://127.0.0.1:27017/test")
 
+from pyromod import Client as PyromodClient
 from plugins.regix import size_filter, keyword_filter, extension_filter, TimeFormatter
 
 
 class ForwardFilterTests(unittest.IsolatedAsyncioTestCase):
+    def test_conversation_helper_is_available(self):
+        self.assertTrue(hasattr(PyromodClient, "ask"))
+
     async def test_size_filter_min_only(self):
         self.assertTrue(await size_filter(0, 10, 5 * 1024 * 1024))
         self.assertFalse(await size_filter(0, 10, 15 * 1024 * 1024))
