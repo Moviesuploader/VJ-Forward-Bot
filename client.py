@@ -1,11 +1,11 @@
 """Pyrogram client with a safe, local ask() conversation helper.
 
-This deliberately avoids Pyromod's global MessageHandler monkeypatch, which
-caused recursive callback dispatch with the deployed Pyrofork runtime.
+This avoids Pyromod's global MessageHandler monkeypatch, which caused
+recursive callback dispatch with the deployed Pyrofork runtime.
 """
 import asyncio
 
-from pyrogram import Client, StopPropagation, filters
+from pyrogram import Client, StopPropagation, filters as pyrogram_filters
 from pyrogram.handlers import MessageHandler
 
 
@@ -27,12 +27,11 @@ class VJ(Client):
         The temporary handler is scoped to the requested chat/user and is
         always removed, including on timeout or send failure.
         """
-        loop = asyncio.get_running_loop()
-        response_future = loop.create_future()
+        response_future = asyncio.get_running_loop().create_future()
 
-        handler_filter = globals()["filters"].chat(chat_id)
+        handler_filter = pyrogram_filters.chat(chat_id)
         if user_id is not None:
-            handler_filter = handler_filter & globals()["filters"].user(user_id)
+            handler_filter = handler_filter & pyrogram_filters.user(user_id)
         if filters is not None:
             handler_filter = handler_filter & filters
 
