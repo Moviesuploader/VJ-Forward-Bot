@@ -55,8 +55,8 @@ class CLIENT:
         return await msg.reply('<b>process cancelled !</b>')
      elif not msg.forward_date:
        return await msg.reply_text("<b>This is not a forward message</b>")
-     elif str(msg.forward_from.id) != "93372553":
-       return await msg.reply_text("<b>This message was not forward from bot father</b>")
+     elif not msg.forward_from or str(msg.forward_from.id) != "93372553":
+       return await msg.reply_text("<b>This message was not forwarded from BotFather</b>")
      bot_token = re.findall(r'\d[0-9]{8,10}:[0-9A-Za-z_-]{35}', msg.text, re.IGNORECASE)
      bot_token = bot_token[0] if bot_token else None
      if not bot_token:
@@ -67,17 +67,20 @@ class CLIENT:
      except Exception as e:
        await msg.reply_text(f"<b>BOT ERROR:</b> `{e}`")
        return
-     _bot = _client.me
-     details = {
-       'id': _bot.id,
-       'is_bot': True,
-       'user_id': user_id,
-       'name': _bot.first_name,
-       'token': bot_token,
-       'username': _bot.username 
-     }
-     await db.add_bot(details)
-     return True
+     try:
+       _bot = _client.me
+       details = {
+         'id': _bot.id,
+         'is_bot': True,
+         'user_id': user_id,
+         'name': _bot.first_name,
+         'token': bot_token,
+         'username': _bot.username
+       }
+       await db.add_bot(details)
+       return True
+     finally:
+       await _client.stop()
 
   async def add_session(self, bot, message):
      user_id = int(message.from_user.id)
@@ -94,38 +97,46 @@ class CLIENT:
         code = await client.send_code(phone_number)
         phone_code_msg = await bot.ask(user_id, "Please check for an OTP in official telegram account. If you got it, send OTP here after reading the below format. \n\nIf OTP is `12345`, **please send it as** `1 2 3 4 5`.\n\n**Enter /cancel to cancel The Procces**", filters=filters.text, timeout=600)
      except PhoneNumberInvalid:
+        await client.disconnect()
         await phone_number_msg.reply('`PHONE_NUMBER` **is invalid.**')
         return
      if phone_code_msg.text=='/cancel':
+        await client.disconnect()
         return await phone_code_msg.reply('<b>process cancelled !</b>')
      try:
         phone_code = phone_code_msg.text.replace(" ", "")
         await client.sign_in(phone_number, code.phone_code_hash, phone_code)
      except PhoneCodeInvalid:
+        await client.disconnect()
         await phone_code_msg.reply('**OTP is invalid.**')
         return
      except PhoneCodeExpired:
+        await client.disconnect()
         await phone_code_msg.reply('**OTP is expired.**')
         return
      except SessionPasswordNeeded:
         two_step_msg = await bot.ask(user_id, '**Your account has enabled two-step verification. Please provide the password.\n\nEnter /cancel to cancel The Procces**', filters=filters.text, timeout=300)
         if two_step_msg.text=='/cancel':
+            await client.disconnect()
             return await two_step_msg.reply('<b>process cancelled !</b>')
         try:
            password = two_step_msg.text
            await client.check_password(password=password)
         except PasswordHashInvalid:
+           await client.disconnect()
            await two_step_msg.reply('**Invalid Password Provided**')
            return
      string_session = await client.export_session_string()
      await client.disconnect()
      if len(string_session) < SESSION_STRING_SIZE:
-        return await msg.reply('<b>invalid session sring</b>')
+        await bot.send_message(user_id, '<b>Invalid session string. Please try again.</b>')
+        return
      try:
        _client = Client("USERBOT", self.api_id, self.api_hash, session_string=string_session)
        client = await _client.start()
      except Exception as e:
-       return await msg.reply_text(f"<b>USER BOT ERROR:</b> `{e}`")
+       await bot.send_message(user_id, f"<b>USER BOT ERROR:</b> `{e}`")
+       return
      user = _client.me
      details = {
        'id': user.id,
@@ -135,8 +146,11 @@ class CLIENT:
        'session': string_session,
        'username': user.username
      }
-     await db.add_userbot(details)
-     return True
+     try:
+       await db.add_userbot(details)
+       return True
+     finally:
+       await _client.stop()
 
 # Don't Remove Credit Tg - @VJ_Botz
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
