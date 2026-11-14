@@ -4,6 +4,7 @@ import logging
 
 # Pyromod supplies the Client.ask() conversation helper used by the settings flow.
 from pyromod import Client as VJ
+from pyromod.types import ListenerTypes
 from pyrogram import idle
 
 from config import Config
@@ -30,10 +31,19 @@ async def main():
         plugins={"root": "plugins"},
     )
 
+    # Pyromod's message handlers access this mapping for every incoming update.
+    # Initialize it explicitly before start() so the dispatcher never receives an
+    # update while the listener registry is absent or incomplete.
+    bot.listeners = {listener_type: [] for listener_type in ListenerTypes}
+
     try:
         await bot.start()
         me = await bot.get_me()
         logger.info("Telegram bot started as @%s (id=%s)", me.username, me.id)
+        logger.info(
+            "Pyromod listener registry initialized (%s listener types)",
+            len(bot.listeners),
+        )
         try:
             await restart_forwards(bot)
         except Exception:
