@@ -90,7 +90,7 @@ async def unequify(client, message):
       last_msg_id = int(match.group(5))
       if chat_id.isnumeric():
          chat_id  = int(("-100" + chat_id))
-   elif target.forward_from_chat.type in [enums.ChatType.CHANNEL, 'supergroup']:
+   elif target.forward_from_chat and target.forward_from_chat.type in [enums.ChatType.CHANNEL, 'supergroup']:
         last_msg_id = target.forward_from_message_id
         chat_id = target.forward_from_chat.username or target.forward_from_chat.id
    else:
