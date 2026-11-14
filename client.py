@@ -1,12 +1,13 @@
 """Pyrogram client with a safe, local ask() conversation helper.
 
-This avoids Pyromod's global MessageHandler monkeypatch, which caused
-recursive callback dispatch with the deployed Pyrofork runtime.
+Pyrofork's MessageHandler contains its own listener wrapper. Using that class
+for a second temporary ask handler can re-enter the same callback recursively.
+This implementation uses the plain Handler base class instead.
 """
 import asyncio
 
 from pyrogram import Client, StopPropagation, filters as pyrogram_filters
-from pyrogram.handlers import MessageHandler
+from pyrogram.handlers.handler import Handler
 
 
 class VJ(Client):
@@ -24,8 +25,8 @@ class VJ(Client):
     ):
         """Send a prompt and await the next matching message.
 
-        The temporary handler is scoped to the requested chat/user and is
-        always removed, including on timeout or send failure.
+        The temporary generic handler is scoped to the requested chat/user and
+        is always removed, including on timeout or send failure.
         """
         response_future = asyncio.get_running_loop().create_future()
 
@@ -40,7 +41,9 @@ class VJ(Client):
                 response_future.set_result(message)
             raise StopPropagation
 
-        handler = MessageHandler(capture_response, handler_filter)
+        # Do not use pyrogram.handlers.MessageHandler here: Pyrofork's
+        # MessageHandler adds a listener wrapper of its own.
+        handler = Handler(capture_response, handler_filter)
         self.add_handler(handler, group=-1)
 
         try:
