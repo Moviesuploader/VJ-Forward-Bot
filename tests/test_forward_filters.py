@@ -26,7 +26,7 @@ class ForwardFilterTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(await size_filter(10, 5, 11 * 1024 * 1024))
 
     async def test_keyword_filter_keeps_matching_names(self):
-        self.assertFalse(await keyword_filter(["1080p", "WEB-DL"], "Movie.1080p.mkv"))
+        self.assertFalse(await keyword_filter("1080p|WEB-DL", "Movie.1080p.mkv"))
         self.assertTrue(await keyword_filter(["1080p", "WEB-DL"], "Movie.720p.mkv"))
         self.assertFalse(await keyword_filter(None, "Movie.mkv"))
 
