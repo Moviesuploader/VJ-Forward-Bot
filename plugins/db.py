@@ -2,7 +2,6 @@
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
 # Ask Doubt on telegram @KingVJ01
 
-import asyncio
 from pymongo import AsyncMongoClient
 
 # Don't Remove Credit Tg - @VJ_Botz
@@ -19,13 +18,19 @@ class MongoDB:
         self.files = None
 
     async def connect(self):
-        self.client = AsyncMongoClient(self.uri)
+        self.client = AsyncMongoClient(
+            self.uri,
+            serverSelectionTimeoutMS=15000,
+            connectTimeoutMS=15000,
+            appname="VJ-Forward-Bot-user-db",
+        )
         self.db = self.client[self.db_name]
         self.files = self.db[self.collection]
+        await self.client.admin.command("ping")
 
     async def close(self):
         if self.client:
-            self.client.close()
+            await self.client.close()
 
     async def add_file(self, file_id):
         file = {"file_id": file_id}
