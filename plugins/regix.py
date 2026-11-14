@@ -171,9 +171,11 @@ async def pub_(bot, message):
             if user_have_db:
                 await user_db.drop_all()
                 await user_db.close()
-            temp.IS_FRWD_CHAT.remove(sts.TO)
+            if sts.TO in temp.IS_FRWD_CHAT:
+                temp.IS_FRWD_CHAT.remove(sts.TO)
             return await stop(client, user)
-        temp.IS_FRWD_CHAT.remove(sts.TO)
+        if sts.TO in temp.IS_FRWD_CHAT:
+            temp.IS_FRWD_CHAT.remove(sts.TO)
         await send(client, user, "<b>🎉 ғᴏʀᴡᴀᴅɪɴɢ ᴄᴏᴍᴘʟᴇᴛᴇᴅ</b>")
         await edit(user, m, 'ᴄᴏᴍᴘʟᴇᴛᴇᴅ', "completed", sts) 
         if user_have_db:
@@ -226,7 +228,7 @@ async def forward(user, bot, msg, m, sts, protect):
      await edit(user, m, 'ᴘʀᴏɢʀᴇssɪɴɢ', e.value, sts)
      await asyncio.sleep(e.value)
      await edit(user, m, 'ᴘʀᴏɢʀᴇssɪɴɢ', 5, sts)
-     await forward(bot, msg, m, sts, protect)
+     await forward(user, bot, msg, m, sts, protect)
 
 # Don't Remove Credit Tg - @VJ_Botz
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
@@ -277,7 +279,8 @@ async def edit(user, msg, title, status, sts):
 async def is_cancelled(client, user, msg, sts):
    if temp.CANCEL.get(user)==True:
       if sts.TO in temp.IS_FRWD_CHAT:
-         temp.IS_FRWD_CHAT.remove(sts.TO)
+         if sts.TO in temp.IS_FRWD_CHAT:
+             temp.IS_FRWD_CHAT.remove(sts.TO)
       await edit(user, msg, 'ᴄᴀɴᴄᴇʟʟᴇᴅ', "cancelled", sts)
       await send(client, user, "<b>❌ ғᴏʀᴡᴀᴅɪɴɢ ᴄᴀɴᴄᴇʟʟᴇᴅ</b>")
       await stop(client, user)
@@ -368,17 +371,13 @@ async def extension_filter(extensions, file_name):
 # Ask Doubt on telegram @KingVJ01
 
 async def size_filter(max_size, min_size, file_size):
-    file_size = file_size / 1024 / 1024
-    if max_size and min_size == 0:
-        return False
-    if max_size == 0:
-        return file_size < min_size
-    if min_size == 0:
-        return file_size > max_size
-    if not min_size <= file_size <= max_size:
+    """Return True when a document is outside the configured MB limits."""
+    file_size_mb = file_size / (1024 * 1024)
+    if min_size and file_size_mb < min_size:
         return True
-    else:
-        return False
+    if max_size and file_size_mb > max_size:
+        return True
+    return False
 
 # Don't Remove Credit Tg - @VJ_Botz
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
@@ -431,24 +430,28 @@ async def terminate_frwding(bot, m):
 
 @Client.on_callback_query(filters.regex(r'^fwrdstatus'))
 async def status_msg(bot, msg):
-    _, status, est_time, percentage, frwd_id = msg.data.split("#")
+    _, status, est_time, percentage, frwd_id = msg.data.split("#", 4)
     sts = STS(frwd_id)
     if not sts.verify():
-       fetched, forwarded, remaining = 0
-    else:
-       fetched, limit, forwarded = sts.get('fetched'), sts.get('limit'), sts.get('total_files')
-       remaining = limit - fetched 
-    est_time = TimeFormatter(milliseconds=est_time)
-    start_time = sts.get('start')
-    uptime = await get_bot_uptime(start_time)
-    total = sts.get('limit') - sts.get('fetched')
-    time_to_comple = await complete_time(total)
-    est_time = est_time if (est_time != '' or status not in ['completed', 'cancelled']) else '0 s'
-    return await msg.answer(PROGRESS.format(percentage, fetched, forwarded, remaining, status, time_to_comple, uptime), show_alert=True)
+        return await msg.answer("This forwarding task is no longer active.", show_alert=True)
 
-# Don't Remove Credit Tg - @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
-# Ask Doubt on telegram @KingVJ01
+    fetched = sts.get("fetched") or 0
+    limit = sts.get("limit") or 0
+    forwarded = sts.get("total_files") or 0
+    remaining = max(0, limit - fetched)
+    start_time = sts.get("start") or time.time()
+    uptime = await get_bot_uptime(start_time)
+    eta = await complete_time(remaining)
+    details = (
+        f"Progress: {percentage}%\\n"
+        f"Fetched: {fetched}/{limit}\\n"
+        f"Forwarded: {forwarded}\\n"
+        f"Remaining: {remaining}\\n"
+        f"Status: {status}\\n"
+        f"ETA: {eta or '0s'}\\n"
+        f"Uptime: {uptime}"
+    )
+    await msg.answer(details, show_alert=True)
 
 @Client.on_callback_query(filters.regex(r'^close_btn$'))
 async def close(bot, update):
@@ -487,8 +490,9 @@ async def restart_pending_forwads(bot, user):
        forward_id = await store_vars(user)
        sts = STS(forward_id)
        if settings['chat_id'] is None:
-           return await db.rmve_frwd(user)
-           temp.forwardings -= 1
+           await db.rmve_frwd(user)
+           temp.forwardings = max(0, temp.forwardings - 1)
+           return
        if not sts.verify():
           temp.forwardings -=1
           return 
@@ -538,7 +542,7 @@ async def restart_pending_forwads(bot, user):
        try: 
           await client.get_messages(sts.get("FROM"), sts.get("limit"))
        except:
-          await msg_edit(m, f"**Source chat may be a private channel / group. Use userbot (user must be member over there) or  if Make Your [Bot](t.me/{_bot['username']}) an admin over there**", retry_btn(firwd_id), True)
+          await msg_edit(m, f"**Source chat may be a private channel / group. Use userbot (user must be member over there) or  if Make Your [Bot](t.me/{_bot['username']}) an admin over there**", retry_btn(forward_id), True)
           return await stop(client, user)
        try:
           k = await client.send_message(i.TO, "Testing")
@@ -632,9 +636,11 @@ async def restart_pending_forwads(bot, user):
             if user_have_db:
                 await user_db.drop_all()
                 await user_db.close()
-            temp.IS_FRWD_CHAT.remove(sts.TO)
+            if sts.TO in temp.IS_FRWD_CHAT:
+                temp.IS_FRWD_CHAT.remove(sts.TO)
             return await stop(client, user)
-        temp.IS_FRWD_CHAT.remove(sts.TO)
+        if sts.TO in temp.IS_FRWD_CHAT:
+            temp.IS_FRWD_CHAT.remove(sts.TO)
         await send(client, user, "<b>🎉 ғᴏʀᴡᴀᴅɪɴɢ ᴄᴏᴍᴘʟᴇᴛᴇᴅ</b>")
         if user_have_db:
             await user_db.drop_all()
@@ -667,7 +673,10 @@ async def restart_forwards(client):
     random_seconds = random.randint(0, 300)
     minutes = random_seconds // 60
     seconds = random_seconds % 60
-    await asyncio.gather(*tasks)
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    for result in results:
+        if isinstance(result, Exception):
+            logger.exception("A pending forwarding task failed during restart", exc_info=result)
     print('Done')
 
 # Don't Remove Credit Tg - @VJ_Botz
