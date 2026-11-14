@@ -42,7 +42,7 @@ async def main():
     finally:
         if bot.is_connected:
             await bot.stop()
-        db.close()
+        await db.close()
         logger.info("Bot shutdown complete")
 
 
