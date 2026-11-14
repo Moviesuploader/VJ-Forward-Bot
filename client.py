@@ -6,8 +6,6 @@ recursive callback execution. This class implements the small listener API
 expected by Pyrofork directly, without monkeypatching its handlers.
 """
 import asyncio
-from typing import Optional
-
 from pyrogram import Client
 from pyrogram.enums import ListenerTypes
 from pyrogram.types import Identifier, Listener
