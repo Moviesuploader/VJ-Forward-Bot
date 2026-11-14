@@ -339,8 +339,8 @@ async def settings_query(bot, query):
        f'<b><u>Max SIZE LIMIT</b></u><b>\n\nyou can set file Maximum size limit to forward\n\nfiles with less than `{size} MB` will forward</b>',
        reply_markup=maxsize_button(size))
 
-  elif type.startswith("update_size"):
-    size = int(query.data.split('-')[1])
+  elif type.startswith("update_size:"):
+    size = int(type.split(":", 1)[1])
     if size < 0 or size > 4000:
       return await query.answer("size limit exceeded", show_alert=True)
     await update_configs(user_id, 'min_size', size)
@@ -348,8 +348,8 @@ async def settings_query(bot, query):
        f'<b><u>SIZE LIMIT</b></u><b>\n\nyou can set file Minimum size limit to forward\n\nfiles with greater than `{size} MB` will forward</b>',
        reply_markup=size_button(size))
      
-  elif type.startswith("maxupdate_size"):
-    size = int(query.data.split('-')[1])
+  elif type.startswith("maxupdate_size:"):
+    size = int(type.split(":", 1)[1])
     if size < 0 or size > 4000:
       return await query.answer("size limit exceeded", show_alert=True)
     await update_configs(user_id, 'max_size', size)
