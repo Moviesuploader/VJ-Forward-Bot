@@ -554,29 +554,29 @@ def maxsize_button(size):
                     callback_data=f'noth')
        ],[
        InlineKeyboardButton('+1',
-                    callback_data=f'settings#maxupdate_size-{size + 1}'),
+                    callback_data=f'settings#maxupdate_size:{size + 1}'),
        InlineKeyboardButton('-1',
-                    callback_data=f'settings#maxupdate_size_-{size - 1}')
+                    callback_data=f'settings#maxupdate_size:{max(0, size - 1)}')
        ],[
        InlineKeyboardButton('+5',
-                    callback_data=f'settings#maxupdate_size-{size + 5}'),
+                    callback_data=f'settings#maxupdate_size:{size + 5}'),
        InlineKeyboardButton('-5',
-                    callback_data=f'settings#maxupdate_size_-{size - 5}')
+                    callback_data=f'settings#maxupdate_size:{max(0, size - 5)}')
        ],[
        InlineKeyboardButton('+10',
-                    callback_data=f'settings#maxupdate_size-{size + 10}'),
+                    callback_data=f'settings#maxupdate_size:{size + 10}'),
        InlineKeyboardButton('-10',
-                    callback_data=f'settings#maxupdate_size_-{size - 10}')
+                    callback_data=f'settings#maxupdate_size:{max(0, size - 10)}')
        ],[
        InlineKeyboardButton('+50',
-                    callback_data=f'settings#maxupdate_size-{size + 50}'),
+                    callback_data=f'settings#maxupdate_size:{size + 50}'),
        InlineKeyboardButton('-50',
-                    callback_data=f'settings#maxupdate_size_-{size - 50}')
+                    callback_data=f'settings#maxupdate_size:{max(0, size - 50)}')
        ],[
        InlineKeyboardButton('+100',
-                    callback_data=f'settings#maxupdate_size-{size + 100}'),
+                    callback_data=f'settings#maxupdate_size:{size + 100}'),
        InlineKeyboardButton('-100',
-                    callback_data=f'settings#maxupdate_size_-{size - 100}')
+                    callback_data=f'settings#maxupdate_size:{max(0, size - 100)}')
        ],[
        InlineKeyboardButton('back',
                     callback_data="settings#extra")
@@ -593,29 +593,29 @@ def size_button(size):
                     callback_data=f'noth')
        ],[
        InlineKeyboardButton('+1',
-                    callback_data=f'settings#update_size-{size + 1}'),
+                    callback_data=f'settings#update_size:{size + 1}'),
        InlineKeyboardButton('-1',
-                    callback_data=f'settings#update_size_-{size - 1}')
+                    callback_data=f'settings#update_size:{max(0, size - 1)}')
        ],[
        InlineKeyboardButton('+5',
-                    callback_data=f'settings#update_size-{size + 5}'),
+                    callback_data=f'settings#update_size:{size + 5}'),
        InlineKeyboardButton('-5',
-                    callback_data=f'settings#update_size_-{size - 5}')
+                    callback_data=f'settings#update_size:{max(0, size - 5)}')
        ],[
        InlineKeyboardButton('+10',
-                    callback_data=f'settings#update_size-{size + 10}'),
+                    callback_data=f'settings#update_size:{size + 10}'),
        InlineKeyboardButton('-10',
-                    callback_data=f'settings#update_size_-{size - 10}')
+                    callback_data=f'settings#update_size:{max(0, size - 10)}')
        ],[
        InlineKeyboardButton('+50',
-                    callback_data=f'settings#update_size-{size + 50}'),
+                    callback_data=f'settings#update_size:{size + 50}'),
        InlineKeyboardButton('-50',
-                    callback_data=f'settings#update_size_-{size - 50}')
+                    callback_data=f'settings#update_size:{max(0, size - 50)}')
        ],[
        InlineKeyboardButton('+100',
-                    callback_data=f'settings#update_size-{size + 100}'),
+                    callback_data=f'settings#update_size:{size + 100}'),
        InlineKeyboardButton('-100',
-                    callback_data=f'settings#update_size_-{size - 100}')
+                    callback_data=f'settings#update_size:{max(0, size - 100)}')
        ],[
        InlineKeyboardButton('back',
                     callback_data="settings#extra")
